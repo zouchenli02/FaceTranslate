@@ -1,6 +1,6 @@
 # 同声 · FaceTranslate
 
-手机优先的面对面中英翻译原型。零 npm 依赖，Node.js 22+。
+手机优先的面对面中英翻译原型。零 npm 依赖，Node.js 22+。Windows 启动器会先查找系统 Node.js，再自动查找 Codex 自带的 Node.js，因此普通终端没有 `node` 命令时也能启动。
 
 ## 启动
 
@@ -26,9 +26,13 @@ node --env-file-if-exists=.env server.mjs
 
 ### iPhone HTTPS 调试
 
-在项目目录运行 `./start-mobile.ps1`。脚本启动仅监听本机 3101 的口令保护服务和 Cloudflare 临时 HTTPS 连接，不改变原来的 3100 端口。用 Safari 打开 `.debug/tunnel-error.log` 中的 `https://…trycloudflare.com` 地址，用户名为 `debug`，密码在 `.debug/password.txt`。允许麦克风后，展开页面底部“手机调试 · 环境与事件”查看环境和识别错误。
+在 Windows 中双击 `start-mobile.cmd`，或在项目目录运行 `.\start-mobile.cmd`。请运行 `.cmd`，不要直接运行 `.ps1`。该入口会自动定位 Node.js，并且只为本次命令放行项目内已知脚本，不修改电脑的 PowerShell 执行策略。脚本启动仅监听本机 3101 的口令保护服务和 Cloudflare 临时 HTTPS 连接，不改变原来的 3100 端口。
 
-电脑和两个调试进程必须保持运行。执行 `./stop-mobile.ps1` 关闭连接。重启后 HTTPS 地址可能变化。口令只保存本机，不提交 Git；`.debug/` 和 `.tools/` 已忽略。HTTPS 请求通过 Cloudflare 转发。演示模式仍只翻译示例句，真实翻译需另配 `.env`。
+启动器会等待 HTTPS 隧道注册完成，并用真实外网请求确认有道翻译处于 live 模式。临时隧道申请或连通失败时最多自动重建四次，只有外网实际访问成功才显示启动成功。最新地址、用户名和密码会同时显示在启动窗口，并写入 `.debug/OPEN-THIS-URL.txt`。手机只打开该文件中的最新地址，不要从聊天记录、浏览器历史或旧截图复制链接。允许麦克风后，可展开页面底部“手机调试 · 环境与事件”查看环境和识别错误。
+
+若终端提示“无法将 node 识别为命令”，说明运行的是旧版启动器或直接运行了 `start-mobile.ps1`。关闭该窗口，重新双击 `start-mobile.cmd`。新版 `.cmd` 会依次查找系统 PATH、`%USERPROFILE%\.cache\codex-runtimes\codex-primary-runtime` 和其他 Codex Runtime 目录。
+
+电脑和两个调试进程必须保持运行。双击 `stop-mobile.cmd` 或执行 `.\stop-mobile.cmd` 关闭连接。每次重新启动都会生成新的临时 HTTPS 地址，旧地址通常显示 Cloudflare Error 1033，这是预期现象。口令只保存本机，不提交 Git；`.debug/` 和 `.tools/` 已忽略。HTTPS 请求通过 Cloudflare 转发。演示模式仍只翻译示例句，真实翻译需另配 `.env`。
 
 首次配置需要从官方地址下载 cloudflared 到 `.tools/cloudflared.exe`：https://developers.cloudflare.com/tunnel/downloads/ 。这是临时调试入口，不是生产部署。若手机网络无法访问 trycloudflare.com，需要换可访问的网络或改用有域名的 HTTPS 托管。
 
